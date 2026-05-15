@@ -3,325 +3,373 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Midnight Blocks</title>
+    <title>Midnight Blocks - Climax</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@700&family=M+PLUS+Rounded+1c:wght@800&display=swap');
         
+        :root {
+            --neon-pink: #ff1493;
+            --hot-pink: #ff69b4;
+            --dark-violet: #1a001a;
+            --climax-red: #ff0033;
+        }
+
         body {
             font-family: 'M PLUS Rounded 1c', sans-serif;
-            background: radial-gradient(circle at center, #2d0a31 0%, #0a0010 100%);
-            overscroll-behavior-y: none;
+            background: #050005;
+            overflow: hidden;
+            touch-action: none;
+            user-select: none;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #fff;
+        }
+
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 100;
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .bg-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            width: 150vw;
+            height: 150vh;
+            background: radial-gradient(circle, rgba(255, 20, 147, 0.2) 0%, rgba(26, 0, 26, 0) 70%);
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            animation: heart-beat 4s infinite ease-in-out;
+        }
+
+        @keyframes heart-beat {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
+        }
+
+        #game-container {
+            position: relative;
+            height: 60vh;
+            aspect-ratio: 1/2;
+            max-height: 500px;
+            transition: transform 0.1s;
         }
 
         #game-board {
-            box-shadow: 0 0 20px rgba(255, 20, 147, 0.5), inset 0 0 15px rgba(255, 20, 147, 0.3);
-            border: 2px solid #ff1493;
-            background-color: rgba(10, 0, 16, 0.8);
-            border-radius: 4px;
+            width: 100%;
+            height: 100%;
+            box-shadow: 0 0 40px rgba(255, 20, 147, 0.5), inset 0 0 20px rgba(255, 20, 147, 0.2);
+            border: 3px solid var(--neon-pink);
+            background-color: rgba(10, 0, 10, 0.9);
+            border-radius: 12px;
         }
 
         .neon-text {
-            color: #ff69b4;
-            text-shadow: 0 0 5px #ff69b4, 0 0 10px #ff1493, 0 0 20px #ff1493;
+            font-family: 'Shippori Mincho', serif;
+            color: #fff;
+            text-shadow: 0 0 5px #fff, 0 0 10px var(--hot-pink), 0 0 20px var(--neon-pink), 0 0 30px var(--climax-red);
         }
 
         .control-btn {
-            background: linear-gradient(145deg, #7a104f, #4a0530);
-            box-shadow: 0 0 10px rgba(255, 20, 147, 0.4);
-            border: 1px solid #ff69b4;
-            color: #ffb6c1;
-            transition: all 0.1s;
-            user-select: none;
-            -webkit-user-select: none;
+            background: linear-gradient(145deg, #3d001f, #1a001a);
+            border: 1px solid var(--hot-pink);
+            color: var(--hot-pink);
+            box-shadow: 0 4px 0 #200010, 0 0 10px rgba(255, 20, 147, 0.2);
+            transition: all 0.05s ease;
+            touch-action: manipulation;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .control-btn:active {
-            background: #ff1493;
-            box-shadow: 0 0 20px #ff1493;
-            transform: scale(0.95);
+            background: var(--neon-pink);
             color: white;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #200010, 0 0 20px var(--neon-pink);
         }
 
-        #message-overlay {
+        .flush {
+            position: fixed;
+            inset: 0;
+            background: white;
+            opacity: 0;
             pointer-events: none;
-            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            z-index: 200;
+        }
+
+        .flush.active { animation: flush-anim 0.3s ease-out; }
+        @keyframes flush-anim { 0% { opacity: 0.6; } 100% { opacity: 0; } }
+
+        .side-panel {
+            background: rgba(30, 0, 30, 0.8);
+            border: 2px solid rgba(255, 20, 147, 0.4);
+            border-radius: 10px;
+            padding: 4px;
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.1);
+        }
+
+        .shake { animation: shake-anim 0.2s ease-in-out; }
+        @keyframes shake-anim {
+            0%, 100% { transform: translate(0,0); }
+            25% { transform: translate(4px, -4px); }
+            50% { transform: translate(-4px, 4px); }
+            75% { transform: translate(4px, 4px); }
         }
     </style>
 </head>
-<body class="text-pink-300 h-screen flex flex-col items-center justify-center overflow-hidden touch-none select-none">
+<body class="p-2">
+    <div class="bg-glow"></div>
+    <div id="flush-overlay" class="flush"></div>
 
-    <div class="w-full max-w-sm flex flex-col items-center">
-        <!-- Header -->
-        <div class="flex justify-between items-center w-full px-4 mb-2">
-            <h1 class="text-2xl font-bold neon-text tracking-wider">Midnight Blocks</h1>
+    <div class="w-full max-w-md flex justify-between items-end mb-2 px-2">
+        <h1 class="text-2xl font-black neon-text leading-none italic">Midnight<br><span class="text-sm tracking-widest pl-1 opacity-80">CLIMAX EDITION</span></h1>
+        <div class="flex gap-3 items-center">
             <div class="text-right">
-                <p class="text-sm text-pink-400">Score</p>
-                <p id="score" class="text-xl font-bold neon-text">0</p>
+                <p class="text-[9px] text-pink-300 font-bold uppercase tracking-tighter">Pleasure Score</p>
+                <p id="score" class="text-2xl font-black neon-text leading-none">000000</p>
+            </div>
+            <button id="btn-fullscreen" class="bg-pink-900/60 text-white text-[10px] px-2 py-1 rounded-full border border-pink-400">全画面</button>
+        </div>
+    </div>
+
+    <div class="flex gap-2 items-start justify-center w-full max-w-md">
+        <!-- HOLD -->
+        <div class="flex flex-col items-center gap-1">
+            <span class="text-[10px] text-pink-300 font-bold italic">キープ♡</span>
+            <div class="side-panel">
+                <canvas id="hold-board" width="50" height="50"></canvas>
             </div>
         </div>
 
-        <!-- Game Area, Hold & Next Area -->
-        <div class="flex flex-row justify-center gap-2">
-            <!-- Hold Area -->
-            <div class="flex flex-col items-center w-[60px]">
-                <p class="text-[10px] text-pink-400 font-bold mb-1 tracking-widest text-shadow">HOLD</p>
-                <canvas id="hold-board" width="60" height="60" class="block rounded border border-[#ff1493] bg-black/60 shadow-[0_0_10px_rgba(255,20,147,0.3)]"></canvas>
+        <!-- MAIN -->
+        <div id="game-container">
+            <canvas id="game-board" width="200" height="400"></canvas>
+            <div id="message-overlay" class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300 transform scale-50 z-20">
+                <span id="message-text" class="text-4xl font-black neon-text text-center px-4 italic leading-tight drop-shadow-2xl"></span>
             </div>
 
-            <div class="relative">
-                <canvas id="game-board" width="200" height="400" class="block rounded"></canvas>
-                
-                <!-- Sexy Message Overlay -->
-                <div id="message-overlay" class="absolute inset-0 flex items-center justify-center opacity-0 scale-50 z-10">
-                    <span id="message-text" class="text-3xl font-bold neon-text transform -rotate-12 w-full text-center"></span>
+            <div id="start-screen" class="absolute inset-0 bg-black/95 flex flex-col items-center justify-center rounded-xl z-50 text-center p-6 border-2 border-pink-600">
+                <div id="start-msg" class="mb-6">
+                    <p class="text-pink-100 text-lg mb-2 font-bold italic">「ねぇ、もっと中のほうまで…」</p>
+                    <p class="text-xs text-pink-400 opacity-70">今夜はあなたを、<br>最高にイかせてあげるわ♡</p>
                 </div>
-
-                <!-- Game Over / Start Screen -->
-                <div id="start-screen" class="absolute inset-0 bg-black/80 flex flex-col items-center justify-center rounded z-20">
-                    <p class="text-xl text-pink-300 mb-4 text-center px-2">優しく<br>操作してね…♡</p>
-                    <button id="btn-start" class="control-btn px-6 py-2 rounded-full font-bold text-lg">はじめる</button>
-                </div>
-            </div>
-
-            <!-- Next Area -->
-            <div class="flex flex-col items-center w-[60px]">
-                <p class="text-[10px] text-pink-400 font-bold mb-1 tracking-widest text-shadow">NEXT</p>
-                <canvas id="next-board" width="60" height="240" class="block rounded border border-[#ff1493] bg-black/60 shadow-[0_0_10px_rgba(255,20,147,0.3)]"></canvas>
+                <button id="btn-start" class="control-btn px-10 py-4 rounded-full font-black text-xl animate-bounce shadow-pink-500/50 shadow-xl">昇天をはじめる</button>
             </div>
         </div>
 
-        <!-- Controls -->
-        <div class="mt-4 w-full px-6 flex flex-col gap-2">
-            <div class="flex justify-between">
-                <button id="btn-hold" class="control-btn w-16 h-12 rounded-lg text-xs flex items-center justify-center">HOLD<br>(Shift)</button>
-                <div class="flex gap-2">
-                    <button id="btn-left" class="control-btn w-14 h-14 rounded-full text-xl flex items-center justify-center">◀</button>
-                    <button id="btn-right" class="control-btn w-14 h-14 rounded-full text-xl flex items-center justify-center">▶</button>
-                </div>
-            </div>
-            <div class="flex justify-center gap-4 mt-1">
-                <button id="btn-rotate" class="control-btn w-14 h-14 rounded-full text-xl flex items-center justify-center">↻</button>
-                <button id="btn-down" class="control-btn w-14 h-14 rounded-full text-xl flex items-center justify-center">▼</button>
-                <button id="btn-drop" class="control-btn w-14 h-14 rounded-full text-xs font-bold flex items-center justify-center text-center leading-tight">HARD<br>DROP</button>
+        <!-- NEXT (5 stages) -->
+        <div class="flex flex-col items-center gap-1">
+            <span class="text-[10px] text-pink-300 font-bold italic">次は…♡</span>
+            <div class="side-panel">
+                <canvas id="next-board" width="50" height="250"></canvas>
             </div>
         </div>
+    </div>
+
+    <div class="mt-auto w-full max-w-md pb-4 grid grid-cols-4 gap-2 px-2">
+        <button id="btn-hold" class="control-btn h-12 rounded-xl text-[11px] font-black border-2">キープ</button>
+        <button id="btn-left" class="control-btn h-12 rounded-xl text-3xl">◀</button>
+        <button id="btn-down" class="control-btn h-12 rounded-xl text-3xl">▼</button>
+        <button id="btn-right" class="control-btn h-12 rounded-xl text-3xl">▶</button>
+        
+        <button id="btn-rotate-left" class="col-span-1 control-btn h-16 rounded-xl font-black">
+            <span class="text-[10px] opacity-70">左に…♡</span>
+            <span class="text-xl">↺</span>
+        </button>
+        <button id="btn-rotate-right" class="col-span-1 control-btn h-16 rounded-xl font-black">
+            <span class="text-[10px] opacity-70">右に…♡</span>
+            <span class="text-xl">↻</span>
+        </button>
+        <button id="btn-drop" class="col-span-2 control-btn h-16 rounded-xl font-black bg-gradient-to-br from-pink-600 to-red-900 text-white border-white/50 text-lg italic shadow-lg shadow-red-500/30">
+            一気に奥まで…ッ！
+        </button>
     </div>
 
     <script>
         const canvas = document.getElementById('game-board');
         const ctx = canvas.getContext('2d');
+        const flushOverlay = document.getElementById('flush-overlay');
         const scoreElement = document.getElementById('score');
         const startScreen = document.getElementById('start-screen');
         const btnStart = document.getElementById('btn-start');
         const messageOverlay = document.getElementById('message-overlay');
         const messageText = document.getElementById('message-text');
+        const btnFullscreen = document.getElementById('btn-fullscreen');
+        const gameContainer = document.getElementById('game-container');
+        
         const nextCanvas = document.getElementById('next-board');
         const nextCtx = nextCanvas.getContext('2d');
         const holdCanvas = document.getElementById('hold-board');
         const holdCtx = holdCanvas.getContext('2d');
 
-        // キャンバスのスケール調整
-        ctx.scale(20, 20);
-        nextCtx.scale(15, 15);
-        holdCtx.scale(15, 15);
+        const mainScale = 20;
+        const sideScale = 12;
+        ctx.scale(mainScale, mainScale);
+        nextCtx.scale(sideScale, sideScale);
+        holdCtx.scale(sideScale, sideScale);
 
-        // 大人なネオンカラーパレット
         const colors = [
             null,
-            '#ff00ff', // T - Magenta
-            '#ff1493', // Z - DeepPink
-            '#c71585', // S - MediumVioletRed
-            '#ff69b4', // O - HotPink
-            '#db7093', // I - PaleVioletRed
-            '#8a2be2', // J - BlueViolet
-            '#9400d3'  // L - DarkViolet
+            '#ff00ff', // T
+            '#ff1493', // Z
+            '#ff0033', // S
+            '#ffd700', // O
+            '#00ffff', // I
+            '#ff69b4', // J
+            '#da70d6'  // L
         ];
 
-        // テトロミノの形状
         const pieces = 'TZSOIJL';
+
         function createPiece(type) {
-            if (type === 'T') {
-                return [[0, 0, 0], [1, 1, 1], [0, 1, 0]];
-            } else if (type === 'Z') {
-                return [[2, 2, 0], [0, 2, 2], [0, 0, 0]];
-            } else if (type === 'S') {
-                return [[0, 3, 3], [3, 3, 0], [0, 0, 0]];
-            } else if (type === 'O') {
-                return [[4, 4], [4, 4]];
-            } else if (type === 'I') {
-                return [[0, 5, 0, 0], [0, 5, 0, 0], [0, 5, 0, 0], [0, 5, 0, 0]];
-            } else if (type === 'J') {
-                return [[0, 6, 0], [0, 6, 0], [6, 6, 0]];
-            } else if (type === 'L') {
-                return [[0, 7, 0], [0, 7, 0], [0, 7, 7]];
-            }
+            if (type === 'T') return [[0, 0, 0], [1, 1, 1], [0, 1, 0]];
+            if (type === 'Z') return [[2, 2, 0], [0, 2, 2], [0, 0, 0]];
+            if (type === 'S') return [[0, 3, 3], [3, 3, 0], [0, 0, 0]];
+            if (type === 'O') return [[4, 4], [4, 4]];
+            if (type === 'I') return [[0, 0, 0, 0], [5, 5, 5, 5], [0, 0, 0, 0], [0, 0, 0, 0]];
+            if (type === 'J') return [[6, 0, 0], [6, 6, 6], [0, 0, 0]];
+            if (type === 'L') return [[0, 0, 7], [7, 7, 7], [0, 0, 0]];
         }
 
-        // 7種一巡(7-bag)のためのNext管理
+        let board = createMatrix(10, 20);
+        let player = { pos: {x: 0, y: 0}, matrix: null, score: 0, type: null };
         let nextPieces = [];
-        
-        // Hold管理
         let holdPiece = null;
         let canHold = true;
-        
-        function generateBag() {
-            let tempBag = pieces.split('');
-            let newBag = [];
-            while (tempBag.length > 0) {
-                const randomIndex = Math.floor(Math.random() * tempBag.length);
-                newBag.push(tempBag.splice(randomIndex, 1)[0]);
-            }
-            return newBag;
-        }
-
-        // 盤面生成
-        function createMatrix(w, h) {
-            const matrix = [];
-            while (h--) {
-                matrix.push(new Array(w).fill(0));
-            }
-            return matrix;
-        }
-
-        const board = createMatrix(10, 20);
         let dropCounter = 0;
         let dropInterval = 1000;
         let lastTime = 0;
         let isGameOver = true;
-        let animationId;
 
-        const player = {
-            pos: {x: 0, y: 0},
-            matrix: null,
-            score: 0,
-            lines: 0
+        const messages = {
+            normal: ["あぁん…♡", "もっと…♡", "そこ、いいの…", "いいわよ…っ♡", "もっと強く…！"],
+            multi: ["すごすぎる…ッ♡", "壊れちゃう！！", "イッちゃう…！！", "あ、あああっ！！♡", "最高よ…完璧…♡"],
+            danger: ["もう限界…っ", "あぁ、ダメぇ…！", "焦らさないで…"],
+            gameover: ["はぁ、はぁ…最高だったわ♡", "また、私を壊して…？", "もう終わりなの…？"]
         };
 
-        const messages = [
-            "ステキ…♡",
-            "いい感じ…！",
-            "もっと…♡",
-            "すごい…！",
-            "その調子よ♡",
-            "あぁん…最高…♡"
-        ];
-
-        function showMessage() {
-            const msg = messages[Math.floor(Math.random() * messages.length)];
-            messageText.innerText = msg;
-            messageOverlay.classList.remove('opacity-0', 'scale-50');
-            messageOverlay.classList.add('opacity-100', 'scale-100');
-            
-            setTimeout(() => {
-                messageOverlay.classList.remove('opacity-100', 'scale-100');
-                messageOverlay.classList.add('opacity-0', 'scale-150');
-                setTimeout(() => {
-                    messageOverlay.classList.remove('scale-150');
-                    messageOverlay.classList.add('scale-50');
-                }, 500);
-            }, 1000);
+        function triggerEffects(isHeavy = false) {
+            flushOverlay.classList.remove('active');
+            void flushOverlay.offsetWidth;
+            flushOverlay.classList.add('active');
+            gameContainer.classList.add('shake');
+            setTimeout(() => gameContainer.classList.remove('shake'), 200);
         }
 
-        // 描画処理
-        function drawMatrix(matrix, offset, context = ctx) {
+        function showSexyMessage(type = 'normal') {
+            const list = messages[type];
+            messageText.innerText = list[Math.floor(Math.random() * list.length)];
+            messageOverlay.className = "absolute inset-0 flex items-center justify-center z-20 transition-all duration-300";
+            messageOverlay.classList.add('opacity-100', 'scale-110', 'rotate-3');
+            setTimeout(() => {
+                messageOverlay.classList.remove('opacity-100', 'scale-110');
+                messageOverlay.classList.add('opacity-0', 'scale-150');
+            }, 800);
+        }
+
+        function createMatrix(w, h) {
+            const matrix = [];
+            while (h--) matrix.push(new Array(w).fill(0));
+            return matrix;
+        }
+
+        function drawMatrix(matrix, offset, context, isGhost = false) {
+            if (!matrix) return;
             matrix.forEach((row, y) => {
                 row.forEach((value, x) => {
                     if (value !== 0) {
-                        context.fillStyle = colors[value];
-                        // ネオン効果（光彩）
-                        context.shadowBlur = 10;
-                        context.shadowColor = colors[value];
-                        
-                        // ブロックの内側を少し暗くしてツヤを出す
-                        context.fillRect(x + offset.x, y + offset.y, 1, 1);
-                        
-                        context.shadowBlur = 0; // リセット
-                        context.fillStyle = 'rgba(255, 255, 255, 0.3)';
-                        context.fillRect(x + offset.x + 0.1, y + offset.y + 0.1, 0.8, 0.2); // ハイライト
+                        const color = colors[value];
+                        context.shadowBlur = isGhost ? 0 : 15;
+                        context.shadowColor = color;
+                        context.fillStyle = isGhost ? 'rgba(255,255,255,0.08)' : color;
+                        context.beginPath();
+                        context.roundRect(x + offset.x + 0.05, y + offset.y + 0.05, 0.9, 0.9, 0.2);
+                        context.fill();
+                        if (!isGhost) {
+                            context.shadowBlur = 0;
+                            context.fillStyle = 'rgba(255,255,255,0.4)';
+                            context.fillRect(x + offset.x + 0.15, y + offset.y + 0.15, 0.4, 0.1);
+                        }
                     }
                 });
             });
         }
 
-        function drawNext() {
-            nextCtx.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
-            for (let i = 0; i < 5; i++) {
-                const type = nextPieces[i];
-                if (!type) continue;
-                const matrix = createPiece(type);
-                
-                // 中央揃えのためのオフセット
-                const offsetX = (4 - matrix[0].length) / 2;
-                const offsetY = i * 3.2 + (type === 'I' ? 0.5 : 1); 
-                
-                drawMatrix(matrix, {x: offsetX, y: offsetY}, nextCtx);
-            }
-        }
-
-        function drawHold() {
-            holdCtx.clearRect(0, 0, holdCanvas.width, holdCanvas.height);
-            if (holdPiece) {
-                const matrix = createPiece(holdPiece);
-                const offsetX = (4 - matrix[0].length) / 2;
-                const offsetY = (4 - matrix.length) / 2 + (holdPiece === 'I' ? -0.5 : 0);
-                
-                // ホールド不可時は少し暗く表示
-                holdCtx.globalAlpha = canHold ? 1.0 : 0.4;
-                drawMatrix(matrix, {x: offsetX, y: offsetY}, holdCtx);
-                holdCtx.globalAlpha = 1.0;
-            }
+        function getGhostPos() {
+            let ghostY = player.pos.y;
+            while (!collide(board, { ...player, pos: { x: player.pos.x, y: ghostY + 1 } })) ghostY++;
+            return ghostY;
         }
 
         function draw() {
-            // 背景クリア
-            ctx.fillStyle = 'rgba(10, 0, 16, 1)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            drawMatrix(board, {x: 0, y: 0});
+            ctx.fillStyle = 'rgba(5, 0, 5, 1)';
+            ctx.fillRect(0, 0, canvas.width / mainScale, canvas.height / mainScale);
+            ctx.strokeStyle = 'rgba(255, 20, 147, 0.05)';
+            ctx.lineWidth = 0.05;
+            for(let i=0; i<10; i++) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 20); ctx.stroke(); }
+            for(let i=0; i<20; i++) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(10, i); ctx.stroke(); }
+            drawMatrix(board, {x: 0, y: 0}, ctx);
             if (player.matrix) {
-                drawMatrix(player.matrix, player.pos);
+                drawMatrix(player.matrix, {x: player.pos.x, y: getGhostPos()}, ctx, true);
+                drawMatrix(player.matrix, player.pos, ctx);
+            }
+            drawNext();
+            drawHold();
+        }
+
+        function drawNext() {
+            nextCtx.clearRect(0, 0, nextCanvas.width / sideScale, nextCanvas.height / sideScale);
+            // Draw 5 next pieces
+            nextPieces.slice(0, 5).forEach((type, i) => {
+                const matrix = createPiece(type);
+                const offX = (4 - matrix[0].length) / 2;
+                const offY = (4 - matrix.length) / 2;
+                // Scale transparency for pieces further in the future
+                nextCtx.globalAlpha = 1 - (i * 0.15); 
+                drawMatrix(matrix, {x: offX, y: i * 4 + offY + 0.5}, nextCtx);
+            });
+            nextCtx.globalAlpha = 1;
+        }
+
+        function drawHold() {
+            holdCtx.clearRect(0, 0, holdCanvas.width / sideScale, holdCanvas.height / sideScale);
+            if (holdPiece) {
+                const matrix = createPiece(holdPiece);
+                const offX = (4 - matrix[0].length) / 2;
+                const offY = (4 - matrix.length) / 2;
+                holdCtx.globalAlpha = canHold ? 1 : 0.3;
+                drawMatrix(matrix, {x: offX, y: offY}, holdCtx);
+                holdCtx.globalAlpha = 1;
             }
         }
 
-        // 衝突判定
         function collide(board, player) {
-            const m = player.matrix;
-            const o = player.pos;
+            const [m, o] = [player.matrix, player.pos];
             for (let y = 0; y < m.length; ++y) {
                 for (let x = 0; x < m[y].length; ++x) {
-                    if (m[y][x] !== 0 &&
-                       (board[y + o.y] && board[y + o.y][x + o.x]) !== 0) {
-                        return true;
-                    }
+                    if (m[y][x] !== 0 && (board[y + o.y] && board[y + o.y][x + o.x]) !== 0) return true;
                 }
             }
             return false;
         }
 
-        // 盤面にブロックを固定
         function merge(board, player) {
             player.matrix.forEach((row, y) => {
                 row.forEach((value, x) => {
-                    if (value !== 0) {
-                        board[y + player.pos.y][x + player.pos.x] = value;
-                    }
+                    if (value !== 0) board[y + player.pos.y][x + player.pos.x] = value;
                 });
             });
-        }
-
-        // 回転
-        function rotate(matrix, dir) {
-            for (let y = 0; y < matrix.length; ++y) {
-                for (let x = 0; x < y; ++x) {
-                    [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
-                }
-            }
-            if (dir > 0) {
-                matrix.forEach(row => row.reverse());
-            } else {
-                matrix.reverse();
-            }
         }
 
         function playerDrop() {
@@ -329,205 +377,123 @@
             if (collide(board, player)) {
                 player.pos.y--;
                 merge(board, player);
-                canHold = true; // 着地したらホールド権を復活
-                drawHold();
                 playerReset();
                 playerSweep();
-                updateScore();
+                canHold = true;
             }
             dropCounter = 0;
         }
 
-        function playerHardDrop() {
-            while (!collide(board, player)) {
-                player.pos.y++;
+        function playerReset() {
+            // Ensure we have at least 12 pieces in the queue to safely show 5 and pick 1
+            if (nextPieces.length < 12) {
+                const bag = [...pieces].sort(() => Math.random() - 0.5);
+                nextPieces.push(...bag);
             }
-            player.pos.y--;
-            merge(board, player);
-            canHold = true; // 着地したらホールド権を復活
-            drawHold();
-            playerReset();
-            playerSweep();
-            updateScore();
-            dropCounter = 0;
-        }
+            player.type = nextPieces.shift();
+            player.matrix = createPiece(player.type);
+            player.pos.y = 0;
+            player.pos.x = Math.floor(board[0].length / 2) - Math.floor(player.matrix[0].length / 2);
 
-        function playerMove(offset) {
-            player.pos.x += offset;
             if (collide(board, player)) {
-                player.pos.x -= offset;
+                isGameOver = true;
+                const msg = messages.gameover[Math.floor(Math.random() * messages.gameover.length)];
+                startScreen.style.display = 'flex';
+                document.getElementById('start-msg').innerHTML = `<p class="text-xl neon-text mb-4">昇天完了♡</p><p class="text-pink-200 mb-4">${msg}</p><p class="text-sm opacity-50">Score: ${player.score}</p>`;
             }
+            if (board[7].some(v => v !== 0)) showSexyMessage('danger');
+        }
+
+        function playerSweep() {
+            let rowCount = 0;
+            outer: for (let y = board.length - 1; y >= 0; --y) {
+                for (let x = 0; x < board[y].length; ++x) if (board[y][x] === 0) continue outer;
+                board.unshift(board.splice(y, 1)[0].fill(0));
+                ++y; rowCount++;
+            }
+            if (rowCount > 0) {
+                player.score += (rowCount ** 2) * 100;
+                scoreElement.innerText = player.score.toString().padStart(6, '0');
+                triggerEffects(rowCount >= 3);
+                showSexyMessage(rowCount >= 3 ? 'multi' : 'normal');
+                dropInterval = Math.max(80, 1000 - (player.score / 50));
+            }
+        }
+
+        function rotate(matrix, dir) {
+            for (let y = 0; y < matrix.length; ++y) {
+                for (let x = 0; x < y; ++x) [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]];
+            }
+            if (dir > 0) matrix.forEach(row => row.reverse());
+            else matrix.reverse();
         }
 
         function playerRotate(dir) {
             const pos = player.pos.x;
             let offset = 1;
             rotate(player.matrix, dir);
-            // 壁蹴り（Wall Kick）処理: 回転して壁にめり込んだら左右にずらす
             while (collide(board, player)) {
                 player.pos.x += offset;
                 offset = -(offset + (offset > 0 ? 1 : -1));
                 if (offset > player.matrix[0].length) {
-                    rotate(player.matrix, -dir); // どうしても回せない場合は元に戻す
+                    rotate(player.matrix, -dir);
                     player.pos.x = pos;
                     return;
                 }
             }
         }
 
-        function playerHold() {
-            if (!canHold) return;
-            
-            if (holdPiece === null) {
-                holdPiece = player.type;
-                playerReset();
-            } else {
-                const temp = player.type;
-                player.type = holdPiece;
-                player.matrix = createPiece(player.type);
-                player.pos.y = 0;
-                player.pos.x = (board[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
-                holdPiece = temp;
-            }
-            
-            canHold = false;
-            dropCounter = 0;
-            drawHold();
-        }
-
-        // ランダムなブロックを生成
-        function playerReset() {
-            if (nextPieces.length <= 5) {
-                nextPieces = nextPieces.concat(generateBag());
-            }
-            player.type = nextPieces.shift(); // ブロックの種類を保存
-            player.matrix = createPiece(player.type);
-            player.pos.y = 0;
-            player.pos.x = (board[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
-            
-            drawNext(); // Nextの表示を更新
-
-            // ゲームオーバー判定
-            if (collide(board, player)) {
-                isGameOver = true;
-                startScreen.style.display = 'flex';
-                startScreen.querySelector('p').innerHTML = `あーん、<br>いっちゃった…♡<br><span class="text-sm">Score: ${player.score}</span>`;
-                btnStart.innerText = "もう一回する？";
-            }
-        }
-
-        // ライン消去
-        function playerSweep() {
-            let rowCount = 1;
-            let linesCleared = 0;
-            outer: for (let y = board.length - 1; y >= 0; --y) {
-                for (let x = 0; x < board[y].length; ++x) {
-                    if (board[y][x] === 0) {
-                        continue outer;
-                    }
-                }
-                const row = board.splice(y, 1)[0].fill(0);
-                board.unshift(row);
-                ++y;
-
-                player.score += rowCount * 10;
-                rowCount *= 2;
-                linesCleared++;
-            }
-
-            if (linesCleared > 0) {
-                showMessage();
-                // 少しスピードアップ
-                dropInterval = Math.max(100, 1000 - (player.score * 0.5));
-            }
-        }
-
-        function updateScore() {
-            scoreElement.innerText = player.score;
-        }
-
-        // ゲームループ
         function update(time = 0) {
             if (isGameOver) return;
-
             const deltaTime = time - lastTime;
             lastTime = time;
-
             dropCounter += deltaTime;
-            if (dropCounter > dropInterval) {
-                playerDrop();
-            }
-
+            if (dropCounter > dropInterval) playerDrop();
             draw();
-            animationId = requestAnimationFrame(update);
+            requestAnimationFrame(update);
         }
 
-        function startGame() {
-            board.forEach(row => row.fill(0));
-            player.score = 0;
-            dropInterval = 1000;
-            updateScore();
-            isGameOver = false;
-            startScreen.style.display = 'none';
-            nextPieces = generateBag().concat(generateBag()); // バッグを初期化して2巡分ストック
-            holdPiece = null;
-            canHold = true;
-            drawHold();
-            playerReset();
-            lastTime = performance.now();
-            update();
-        }
-
-        // キーボード操作
-        document.addEventListener('keydown', event => {
-            if (isGameOver) return;
-            switch(event.keyCode) {
-                case 37: playerMove(-1); break; // Left
-                case 39: playerMove(1); break;  // Right
-                case 40: playerDrop(); break;   // Down
-                case 38: playerRotate(1); break;// Up
-                case 32: playerHardDrop(); break; // Space
-                case 16: playerHold(); break;   // Shift key (Hold)
-                case 67: playerHold(); break;   // C key (Hold)
-            }
-        });
-
-        // ボタン操作 (スマホ用)
-        const bindButton = (id, action, repeat = false) => {
-            const btn = document.getElementById(id);
-            let intervalId;
-            
-            const startAction = (e) => {
-                e.preventDefault();
-                if (isGameOver) return;
-                action();
-                if (repeat) {
-                    intervalId = setInterval(action, 100);
-                }
-            };
-            const stopAction = (e) => {
-                e.preventDefault();
-                clearInterval(intervalId);
-            };
-
-            btn.addEventListener('mousedown', startAction);
-            btn.addEventListener('touchstart', startAction);
-            btn.addEventListener('mouseup', stopAction);
-            btn.addEventListener('mouseleave', stopAction);
-            btn.addEventListener('touchend', stopAction);
+        btnFullscreen.onclick = () => {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+            else document.exitFullscreen();
         };
 
-        bindButton('btn-left', () => playerMove(-1), true);
-        bindButton('btn-right', () => playerMove(1), true);
-        bindButton('btn-down', () => playerDrop(), true);
-        bindButton('btn-rotate', () => playerRotate(1));
-        bindButton('btn-drop', () => playerHardDrop());
-        bindButton('btn-hold', () => playerHold()); // Hold機能に割り当て
+        const bind = (id, fn) => {
+            const el = document.getElementById(id);
+            const handler = (e) => { e.preventDefault(); if (!isGameOver) fn(); };
+            el.addEventListener('touchstart', handler, { passive: false });
+            el.addEventListener('mousedown', handler);
+        };
 
-        btnStart.addEventListener('click', startGame);
+        bind('btn-left', () => { player.pos.x--; if (collide(board, player)) player.pos.x++; });
+        bind('btn-right', () => { player.pos.x++; if (collide(board, player)) player.pos.x--; });
+        bind('btn-down', () => playerDrop());
+        bind('btn-rotate-left', () => playerRotate(-1));
+        bind('btn-rotate-right', () => playerRotate(1));
+        bind('btn-drop', () => {
+            let dist = 0;
+            while (!collide(board, player)) { player.pos.y++; dist++; }
+            player.pos.y--; merge(board, player); 
+            if(dist > 2) triggerEffects();
+            playerReset(); playerSweep(); canHold = true;
+        });
+        bind('btn-hold', () => {
+            if (!canHold) return;
+            if (!holdPiece) { holdPiece = player.type; playerReset(); }
+            else { [player.type, holdPiece] = [holdPiece, player.type]; player.matrix = createPiece(player.type); player.pos.y = 0; }
+            canHold = false;
+        });
 
-        // 初期描画
-        draw();
+        btnStart.onclick = () => {
+            board = createMatrix(10, 20);
+            player.score = 0; scoreElement.innerText = "000000";
+            isGameOver = false; startScreen.style.display = 'none';
+            nextPieces = [];
+            holdPiece = null; canHold = true;
+            playerReset(); lastTime = performance.now(); update();
+        };
+
+        window.onload = draw;
     </script>
 </body>
 </html>
